@@ -1,5 +1,5 @@
 import { ApiService } from "@app/api/api.service";
-import { BitirxUserGet } from "@app/api/types/interfaces";
+import { BitirxUserGet } from "@app/bitrix/types/interfaces";
 import { LoggerService } from "@app/logger/logger.service";
 import { LowdbService } from "@app/lowdb/lowdb.service";
 import { Departments } from "@app/lowdb/types/interfaces";
@@ -72,6 +72,7 @@ export class SyncDataService implements OnApplicationBootstrap {
   getData(id: string, departments: Departments): Departments {
     return {
       trunkNumber: departments.trunkNumber,
+      timeZone: departments.timeZone,
       departmentId: departments.departmentId,
       id: id,
       callProcessing: departments.callProcessing,

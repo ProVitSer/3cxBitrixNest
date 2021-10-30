@@ -1,11 +1,13 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { AmiService } from "@app/ami/ami.service";
-import { LoggerService } from "../logger/logger.service";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { AmiService, PlainObject } from "@app/ami/ami.service";
+import { LoggerService } from "@app/logger/logger.service";
 import { LowdbService } from "@app/lowdb/lowdb.service";
-import { OnExternalCallStart,BitrixMetod, BitirxUserGet, ActiveUser } from "./types/interfaces";
-import {WorkPosition} from './config';
+import { OnExternalCallStart,BitrixMetod, BitirxUserGet, ActiveUser, Show, BitrixCallType, 
+  ExternalCallShow, BitrixRegisterCallRequest, BitrixRegisterCallResponse, ExternalCallHide, BitrixExternalCallFinishRequest, GetActivity } from "@app/bitrix/types/interfaces";
 import axios, { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import * as moment from 'moment-timezone';
+import { DispositionStatus } from "@app/ami/types/interfaces";
 
 @Injectable()
 export class ApiService {
@@ -31,7 +33,7 @@ export class ApiService {
     const data = {
       "FILTER": {
         "UF_DEPARTMENT": id,
-        "WORK_POSITION": WorkPosition
+        "WORK_POSITION": this.configService.get('bitrix.custom.workPosition')
       }
     }
 
@@ -47,4 +49,111 @@ export class ApiService {
     }
     return (await this.httpService.post(`${this.bitrixUrl}${BitrixMetod.UserGet}?start=${startPage}`,data).toPromise()).data //as BitirxUserGet[];
   }
+
+  public async externalCallregister(bitrixTrunkId: number, number: string, callType: BitrixCallType, createLead: number, timeZone: string) : Promise<BitrixRegisterCallResponse>{
+    const today = moment();
+    const data: BitrixRegisterCallRequest = {
+      "USER_ID": bitrixTrunkId,
+      "PHONE_NUMBER": number,
+      "TYPE": callType,
+      "CALL_START_DATE": today.tz(timeZone).format('YYYY-MM-DD H:mm:ss'),
+      "CRM_CREATE": createLead,
+      "SHOW": Show.NO
+    }
+
+    this.logger.info(`Отправляем данные для рагистрации вызова ${JSON.stringify(data)}`);
+    try{
+       
+      const { result }  = (await this.httpService.post(`${this.bitrixUrl}${BitrixMetod.ExternalCallRegister}`,data).toPromise()).data;
+      this.logger.info(`Результат регистрации вызова ${result}`);
+      return result;
+    } catch(e){
+      this.logger.error(`Ошибка регистрация вызова в Битриксе ${e}`)
+    }
+  }
+
+  public async externalCallShow(callId: string,showUserArray: Array<string>): Promise<any>{
+
+    const data: ExternalCallShow = {
+      CALL_ID: callId,
+      USER_ID: showUserArray || []
+    }
+
+    try{
+      const { result } = (await this.httpService.post(`${this.bitrixUrl}${BitrixMetod.ExternalCallShow}`,data).toPromise()).data;
+      this.logger.info(`Результат показа всплывающей карточки пользователем ${result}`)
+      return;
+    } catch(e){
+      this.logger.error(`Ошибка показа карточки в Битриксе ${e}`)
+    }
+  }
+
+  public async externalCallHide(callId: string,showUserArray: Array<string>): Promise<any>{
+    const data: ExternalCallHide = {
+      CALL_ID: callId,
+      USER_ID: showUserArray || []
+    }
+
+    try{
+      const { result } = (await this.httpService.post(`${this.bitrixUrl}${BitrixMetod.ExternalCallHide}`,data).toPromise()).data;
+      this.logger.info(`Результат завершения показа всплывающей карточки пользователем ${result}`)
+      return;
+    } catch(e){
+      this.logger.error(`Ошибка завершения показа карточки в Битриксе ${e}`)
+    }
+
+  }
+
+  public async externalCallFinish(bitrixId: string,userId: string,billsec: string,callStatus:DispositionStatus,callType:BitrixCallType,recording:string): Promise<any>{
+    const data: BitrixExternalCallFinishRequest = {
+      "CALL_ID": bitrixId,
+      "USER_ID": Number(userId),
+      "DURATION": Number(billsec),
+      "STATUS_CODE": callStatus,
+      "TYPE": callType,
+      "RECORD_URL": `http://${this.configService.get('bitrix.custom.recordUrl')}/monitor/${recording}`
+    }
+
+    try{
+      const { result } = (await this.httpService.post(`${this.bitrixUrl}${BitrixMetod.ExternalCallFinish}`,data).toPromise()).data;
+      this.logger.info(`Результат завершения вызова${result}`)
+      return result;
+    } catch(e){
+      this.logger.error(`Ошибка завершения вызова в Битриксе ${e}`)
+    }
+  }
+
+  public async getActivity(id : any): Promise<any>{
+    const data : GetActivity = {
+      ID: id
+    }
+
+    try{
+      const { result } = (await this.httpService.post(`${this.bitrixUrl}${BitrixMetod.CrmActivityGet}`,data).toPromise()).data;
+      this.logger.info(`Результат getActivity ${result}`)
+      return result;
+    } catch(e){
+      this.logger.error(`Ошибка getActivity в Битриксе ${e}`)
+    }
+
+  }
+
+  public async updateActivity(author: string, responsibleId: string){
+    const data: GetActivity = {
+      "ID": author,
+      "fields": {
+          "AUTHOR_ID": responsibleId,
+          "RESPONSIBLE_ID": responsibleId
+      }
+    };
+
+    try{
+      const { result } = (await this.httpService.post(`${this.bitrixUrl}${BitrixMetod.CrmActivitUypdate}`,data).toPromise()).data;
+      this.logger.info(`Результат updateActivity ${result}`)
+      return result;
+    } catch(e){
+      this.logger.error(`Ошибка updateActivity в Битриксе ${e}`)
+    }
+  }
+
 }

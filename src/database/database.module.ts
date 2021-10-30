@@ -2,6 +2,12 @@ import { Module } from '@nestjs/common';
 import { DatabaseService } from './database.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Calldetails } from './entities/Calldetails';
+import { Callhistory3 } from './entities/Callhistory3';
+import { ClCalls } from './entities/ClCalls';
+import { ClParticipants } from './entities/ClParticipants';
+import { ClPartyInfo } from './entities/ClPartyInfo';
+import { ClSegments } from './entities/ClSegments';
 
 @Module({
   imports: [
@@ -13,7 +19,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         username: 'phonesystem',
         password: 'Hb3OZWVQoeog',
         database: 'database_single',
-        entities: [],
+        entities: [Calldetails,Callhistory3,ClCalls,ClParticipants,ClPartyInfo,ClSegments],
         synchronize: true,
       }),
   ],

@@ -2,10 +2,11 @@ import { Module } from "@nestjs/common";
 import { ConfigService, ConfigModule } from "@nestjs/config";
 import { AmiService } from "./ami.service";
 import * as namiLib from "nami";
-import { LoggerModule } from "../logger/logger.module";
+import { LoggerModule } from "@app/logger/logger.module";
+import { BitrixModule } from "@app/bitrix/bitrix.module";
 
 @Module({
-  imports: [ConfigModule, LoggerModule],
+  imports: [ConfigModule, LoggerModule,BitrixModule],
   providers: [
     {
       provide: "AMI",

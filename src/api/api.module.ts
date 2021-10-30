@@ -29,6 +29,7 @@ import { BitrixAuthMiddleware } from './api.auth.middleware';
   controllers: [ApiController],
   exports: [ApiService],
 })
+
 export class ApiModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer

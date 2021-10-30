@@ -34,6 +34,7 @@
         "lodash": "^4.17.21",
         "lowdb": "^1.0.0",
         "moment": "^2.29.1",
+        "moment-timezone": "^0.5.33",
         "nami": "^0.7.2",
         "nest-winston": "^1.6.1",
         "pg": "^8.7.1",

@@ -12,6 +12,7 @@ import { DatabaseModule } from './database/database.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ApiModule } from './api/api.module';
 import { SyncDataModule } from './sync-data/sync-data.module';
+import { BitrixModule } from './bitrix/bitrix.module';
 
 
 @Module({
@@ -20,9 +21,10 @@ import { SyncDataModule } from './sync-data/sync-data.module';
       EventEmitterModule.forRoot(),
       LoggerModule,
       LowdbModule,
-      AmiModule,
       ApiModule,
       SyncDataModule,
+      BitrixModule,
+      AmiModule,
       //DatabaseModule,
   ],
   controllers: [AppController],

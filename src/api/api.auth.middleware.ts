@@ -14,7 +14,7 @@ export class BitrixAuthMiddleware implements NestMiddleware {
   use(req: any, res: Response, next: Function) {
     const { body } = req;
     this.logger.info(body);
-    (body.event == this.configService.get('bitrix.event') && 
+    (body.event == this.configService.get('bitrix.custom.event') && 
     body.auth.application_token == this.configService.get('bitrix.token'))?
     next():
     res.sendStatus(500); 

@@ -1,33 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { LoggerService } from "../logger/logger.service";
+import { LoggerService } from "@app/logger/logger.service";
 import { ConfigService } from "@nestjs/config";
 import * as path from "path";
 import * as lowdb from "lowdb";
 import * as FileAsync from "lowdb/adapters/FileAsync";
-import { Departments, Users } from "./types/interfaces";
+import { Departments, PlainObject, Users } from "./types/interfaces";
 const dirPath = path.join(__dirname, "../../src/config");
-
-interface PlainObject {
-  [key: string]: any;
-}
-
-type BitrixTrunksInfo = {
-  trunkNumber: string;
-  departmentId: string;
-  id: string;
-  callPrecessing: string;
-  showUsers: Array<string>;
-};
-
-type BitrixUsersInfo = {
-  exten: string;
-  id: string;
-};
-
-type Data = {
-  departments: BitrixTrunksInfo[];
-  users: BitrixUsersInfo[];
-};
 
 @Injectable()
 export class LowdbService {
@@ -116,7 +94,7 @@ export class LowdbService {
 
   }
 
-  async findDeprtmentIdByCallId(callId: string, collection: string = 'departments'): Promise<any> {
+  async findDeprtmentByCallId(callId: string, collection: string = 'departments'): Promise<Departments | Users> {
     try{
       this.log.info(
         `Производим поиск ${callId} в  ${collection}`
@@ -129,6 +107,19 @@ export class LowdbService {
     }catch(e){
       this.log.error(`LowDB findById error: ${e}`);
     }
+  }
 
+  async getBitrixIdByExten(exten: string, collection: string = 'users'){
+    try{
+      this.log.info(
+        `Производим поиск ${exten} в ${collection}`
+      );
+
+    const values: Array<any> = await this.findAll(collection);
+    const valueFound = values.find(obj => obj.exten === exten)
+    return valueFound;
+    }catch(e){
+      this.log.error(`LowDB getBitrixIdByExten error: ${e}`);
+    }
   }
 }
