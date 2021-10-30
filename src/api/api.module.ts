@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { HttpModule } from "@nestjs/axios";
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from "../logger/logger.module";
@@ -6,6 +6,7 @@ import { ApiService } from './api.service';
 import { ApiController } from './api.controller';
 import { AmiModule } from '@app/ami/ami.module';
 import { LowdbModule } from '@app/lowdb/lowdb.module';
+import { BitrixAuthMiddleware } from './api.auth.middleware';
 
 @Module({
   imports: [
@@ -28,4 +29,10 @@ import { LowdbModule } from '@app/lowdb/lowdb.module';
   controllers: [ApiController],
   exports: [ApiService],
 })
-export class ApiModule {}
+export class ApiModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer
+        .apply(BitrixAuthMiddleware)
+        .forRoutes(ApiController);
+}
+}
