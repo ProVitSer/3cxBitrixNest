@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from "@nestjs/axios";
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { LoggerModule } from "@app/logger/logger.module";
+import { LoggerModule } from "../logger/logger.module";
 import { ApiService } from './api.service';
 import { ApiController } from './api.controller';
 import { AmiModule } from '@app/ami/ami.module';
@@ -22,8 +22,10 @@ import { LowdbModule } from '@app/lowdb/lowdb.module';
             },
         }),
         inject: [ConfigService],
-    })],
+    })
+  ],
   providers: [ApiService],
-  controllers: [ApiController]
+  controllers: [ApiController],
+  exports: [ApiService],
 })
 export class ApiModule {}
