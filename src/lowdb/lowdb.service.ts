@@ -4,6 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import * as path from "path";
 import * as lowdb from "lowdb";
 import * as FileAsync from "lowdb/adapters/FileAsync";
+import { Departments, Users } from "./types/interfaces";
 const dirPath = path.join(__dirname, "../../src/config");
 
 interface PlainObject {
@@ -64,7 +65,7 @@ export class LowdbService {
     }
   }
 
-  async delete( id: string,collection: string = "departments"): Promise<any> {
+  async deleteTrunkInfo( id: string,collection: string = "departments"): Promise<any> {
     try {
       this.log.info(
         `Удаляем  ${id} из коллекции ${collection}`
@@ -106,7 +107,7 @@ export class LowdbService {
     }
   }
 
-  async findAll(collection: string): Promise<any> {
+  async findAll(collection: string): Promise<Departments[] | Users[]> {
     try{
       return await this.db.get(collection).value()
     } catch(e){
