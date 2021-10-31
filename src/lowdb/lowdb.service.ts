@@ -109,7 +109,7 @@ export class LowdbService {
     }
   }
 
-  async getBitrixIdByExten(exten: string, collection: string = 'users'){
+  async getBitrixIdByExten(exten: string, collection: string = 'users'): Promise<string>{
     try{
       this.log.info(
         `Производим поиск ${exten} в ${collection}`
