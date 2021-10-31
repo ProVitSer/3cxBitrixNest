@@ -11,9 +11,7 @@ import { ClCalls } from './ClCalls';
 import { ClPartyInfo } from './ClPartyInfo';
 import { ClSegments } from './ClSegments';
 
-@Index('cl_participants_call_id_idx', ['callId'], {})
-@Index('pk_participant', ['id'], { unique: true })
-@Index('cl_participants_info_id_idx', ['infoId'], {})
+
 @Entity('cl_participants', { schema: 'public' })
 export class ClParticipants {
   @PrimaryGeneratedColumn({ type: 'integer', name: 'id' })
@@ -89,21 +87,4 @@ export class ClParticipants {
     length: 255,
   })
   billingGroup: string | null;
-
-  @ManyToOne(() => ClCalls, (clCalls) => clCalls.clParticipants)
-  @JoinColumn([{ name: 'call_id', referencedColumnName: 'id' }])
-  call: ClCalls;
-
-  @ManyToOne(() => ClPartyInfo, (clPartyInfo) => clPartyInfo.clParticipants)
-  @JoinColumn([{ name: 'info_id', referencedColumnName: 'id' }])
-  info: ClPartyInfo;
-
-  @OneToMany(() => ClSegments, (clSegments) => clSegments.actionParty)
-  clSegments: ClSegments[];
-
-  @OneToMany(() => ClSegments, (clSegments) => clSegments.dstPart)
-  clSegments2: ClSegments[];
-
-  @OneToMany(() => ClSegments, (clSegments) => clSegments.srcPart)
-  clSegments3: ClSegments[];
 }

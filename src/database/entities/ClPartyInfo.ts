@@ -7,10 +7,6 @@ import {
 } from 'typeorm';
 import { ClParticipants } from './ClParticipants';
 
-@Index('cl_party_info_dn_idx', ['dn'], {})
-@Index('cl_party_info_dn_class_idx', ['dnClass'], {})
-@Index('cl_party_info_dn_type_idx', ['dnType'], {})
-@Index('pk_party_info', ['id'], { unique: true })
 @Entity('cl_party_info', { schema: 'public' })
 export class ClPartyInfo {
   @PrimaryGeneratedColumn({ type: 'integer', name: 'id' })
@@ -53,7 +49,4 @@ export class ClPartyInfo {
     default: () => 'NULL::character varying',
   })
   didNumber: string | null;
-
-  @OneToMany(() => ClParticipants, (clParticipants) => clParticipants.info)
-  clParticipants: ClParticipants[];
 }
