@@ -3,7 +3,7 @@ import { AmiService, PlainObject } from "@app/ami/ami.service";
 import { LoggerService } from "@app/logger/logger.service";
 import { LowdbService } from "@app/lowdb/lowdb.service";
 import { OnExternalCallStart,BitrixMetod, BitirxUserGet, ActiveUser, Show, BitrixCallType, 
-  ExternalCallShow, BitrixRegisterCallRequest, BitrixRegisterCallResponse, ExternalCallHide, BitrixExternalCallFinishRequest, GetActivity } from "@app/bitrix/types/interfaces";
+  ExternalCallShow, BitrixRegisterCallRequest, BitrixRegisterCallResponse, ExternalCallHide, BitrixExternalCallFinishRequest, GetActivity, BitrixCallStatusType, BitrixTasksFields } from "@app/bitrix/types/interfaces";
 import axios, { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import * as moment from 'moment-timezone';
@@ -17,17 +17,17 @@ export class ApiService {
 
   constructor(   
     private readonly logger: LoggerService,
-    @Inject('AMI') private readonly ami: AmiService,
+    //@Inject('AMI') private readonly ami: AmiService,
     private readonly lowdb: LowdbService,
     private httpService: HttpService,
     private readonly configService: ConfigService,
   ) {}
 
-  async sendAmiCall(callInfo: OnExternalCallStart) {
-    const { USER_ID, PHONE_NUMBER, CALL_ID } = callInfo;
-    const extensionId = await this.lowdb.findById(String(USER_ID), "users");
-    return await this.ami.sendAmiCall(CALL_ID,extensionId,PHONE_NUMBER);
-  }
+  // async sendAmiCall(callInfo: OnExternalCallStart) {
+  //   const { USER_ID, PHONE_NUMBER, CALL_ID } = callInfo;
+  //   const extensionId = await this.lowdb.findById(String(USER_ID), "users");
+  //   return await this.ami.sendAmiCall(CALL_ID,extensionId,PHONE_NUMBER);
+  // }
 
   public async getUserIdDepartment(id: string) {
     const data = {
@@ -104,14 +104,14 @@ export class ApiService {
 
   }
 
-  public async externalCallFinish(bitrixId: string,userId: string,billsec: string,callStatus:DispositionStatus,callType:BitrixCallType,recording:string): Promise<any>{
+  public async externalCallFinish(bitrixId: string,userId: string,billsec: string,callStatus:DispositionStatus | BitrixCallStatusType,callType:BitrixCallType,recording:string): Promise<any>{
     const data: BitrixExternalCallFinishRequest = {
-      "CALL_ID": bitrixId,
-      "USER_ID": Number(userId),
-      "DURATION": Number(billsec),
-      "STATUS_CODE": callStatus,
-      "TYPE": callType,
-      "RECORD_URL": `http://${this.configService.get('bitrix.custom.recordUrl')}/monitor/${recording}`
+      CALL_ID: bitrixId,
+      USER_ID: Number(userId),
+      DURATION: Number(billsec),
+      STATUS_CODE: callStatus,
+      TYPE: callType,
+      RECORD_URL: `http://${this.configService.get('bitrix.custom.recordUrl')}/monitor/${recording}`
     }
 
     try{
@@ -154,6 +154,29 @@ export class ApiService {
     } catch(e){
       this.logger.error(`Ошибка updateActivity в Битриксе ${e}`)
     }
+  }
+
+
+  public async createTask(incomingNumber: string, bitrixId: string){
+    const data: BitrixTasksFields = {
+      "fields": {
+        "TITLE": "Пропущенный вызов",
+        "RESPONSIBLE_ID": Number(bitrixId),
+        "CREATED_BY": 1,
+        "DESCRIPTION": `Пропущенный вызов от абонента ${incomingNumber}`,
+        "PRIORITY": "2",
+        "DEADLINE": moment().add(this.configService.get('bitrix.custom.deadLine'), 'minutes').format('YYYY-MM-DD H:mm:ss')
+      }
+    }
+
+    try{
+      const { result } = (await this.httpService.post(`${this.bitrixUrl}${BitrixMetod.TaskAdd}`,data).toPromise()).data;
+      this.logger.info(`Результат createTask ${result}`)
+      return result;
+    } catch(e){
+      this.logger.error(`Ошибка createTask в Битриксе ${e}`)
+    }
+
   }
 
 }
