@@ -88,20 +88,38 @@ export interface BitrixExternalCallFinishRequest {
   USER_ID: number;
   DURATION: number;
   COST_CURRENCY?: string;
-  STATUS_CODE?: DispositionStatus;
+  STATUS_CODE?: DispositionStatus | BitrixCallStatusType;
   FAILED_REASON?: string;
   RECORD_URL?: string;
   VOTE?: number;
   TYPE?: BitrixCallType;
   ADD_TO_CHAT?: number;
 }
-
-
-export interface GetActivity{
-  ID: string;
-  fields?:{}
+export interface BitrixTasksFields {
+  fields: {
+    ID?: number;
+    PARENT_ID?: number;
+    TITLE?: string;
+    DESCRIPTION?: string;
+    MARK?: string;
+    PRIORITY?: string;
+    STATUS?: string;
+    MULTITASK?: string;
+    NOT_VIEWED?: string;
+    REPLICATE?: string;
+    GROUP_ID?: number;
+    STAGE_ID?: number;
+    CREATED_BY?: number;
+    CREATED_DATE?: Date;
+    RESPONSIBLE_ID?: number;
+    DEADLINE?: string;
+  };
 }
 
+export interface GetActivity {
+  ID: string;
+  fields?: {};
+}
 
 export enum BitrixMetod {
   ExternalCallRegister = "telephony.externalcall.register.json",
@@ -149,4 +167,31 @@ export enum CreateOutgoingLead {
 export enum Show {
   YES = 0,
   NO = 1,
+}
+
+export enum BitrixCallStatusType {
+  SuccessfulCall = "200",
+  MissedCall = "304",
+  Rejected = "603",
+  CallCanceled = "603-S",
+  Forbidden = "403",
+  WrongNumber = "404",
+  Busy = "486",
+  NotAvailableV1 = "484",
+  NotAvailableV2 = "503",
+  TemporarilyUnavailable = "480",
+  Insufficient = "402",
+  Block = "423",
+  Other = "OTHER",
+}
+
+export interface FinishCallInfo {
+  unicueid: string;
+  bitrixUserId: string;
+  incomingNumber: string;
+  callType: BitrixCallType;
+  startTime: string;
+  billsec: string;
+  isAnswer: BitrixCallStatusType;
+  recording: string;
 }
