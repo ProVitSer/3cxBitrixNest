@@ -1,28 +1,28 @@
-import { Module } from '@nestjs/common';
-import { DatabaseService } from './database.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Calldetails } from './entities/Calldetails';
-import { Callhistory3 } from './entities/Callhistory3';
-import { ClCalls } from './entities/ClCalls';
-import { ClParticipants } from './entities/ClParticipants';
-import { ClPartyInfo } from './entities/ClPartyInfo';
-import { ClSegments } from './entities/ClSegments';
+import { Module } from "@nestjs/common";
+import {  DatabaseService } from "./database.service";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { ClCalls } from "./entities/ClCalls";
+import { ClParticipants } from "./entities/ClParticipants";
+import { ClPartyInfo } from "./entities/ClPartyInfo";
+import { ClSegments } from "./entities/ClSegments";
+import { CallcentQueuecalls } from "./entities/CallcentQueuecalls";
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-        name: 'postgres',
-        type: 'postgres',
-        host: '193.178.170.28',
-        port: 5432,
-        username: 'phonesystem',
-        password: 'Hb3OZWVQoeog',
-        database: 'database_single',
-        entities: [Calldetails,Callhistory3,ClCalls,ClParticipants,ClPartyInfo,ClSegments],
-        synchronize: true,
-      }),
+      type: "",
+      host: "",
+      port: 5432,
+      username: "",
+      password: "",
+      database: "",
+      entities: [ ClParticipants,ClPartyInfo,ClSegments,ClCalls,CallcentQueuecalls],
+      synchronize: true,
+    }),
+    TypeOrmModule.forFeature([ClParticipants,ClPartyInfo,ClSegments,ClCalls,CallcentQueuecalls]),
   ],
-  providers: [DatabaseService]
+  providers: [DatabaseService],
+  exports:[DatabaseService]
 })
 export class DatabaseModule {}
