@@ -104,5 +104,6 @@ dist
 .tern-port
 
 # Custom
-config
+db.json
+config.json
 log/*
