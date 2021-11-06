@@ -6,14 +6,14 @@ export interface AriConfigs {
   password: string;
 }
 
-export enum AsteriskContextEventType {
+export const enum AsteriskContextEventType {
   EndOutgoingCall = "outbound-hangup-handler",
   EndIncomigCall = "incoming-hangup-handler",
   EndCrmCall = "outbound-call-hangup-handler",
   StartIncomingCall = "operator-in",
 }
 
-export enum EventEmitterType {
+export const enum EventEmitterType {
   OutgoingCall = "OutgoingCall",
   IncomingCall = "IncomingCall",
   CrmCall = "CrmCall",
@@ -64,14 +64,15 @@ export interface StartIncomingCall extends Event {
 }
 
 export interface EndOutgoingCall extends Event {
+    trunkNumber: string;
     exten: string;
     unicueid: string;
     extensionNumber: string;
     billsec: string;
     disposition: DispositionStatus;
-    recordingstring: string;
-    startstring: string;
-    endstring: string;
+    recording: string;
+    start: string;
+    end: string;
 }
 
 export interface EndIncomigCall extends Event {
