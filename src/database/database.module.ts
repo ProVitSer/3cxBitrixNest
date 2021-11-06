@@ -10,15 +10,19 @@ import { CallcentQueuecalls } from "./entities/CallcentQueuecalls";
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: "",
-      host: "",
-      port: 5432,
-      username: "",
-      password: "",
-      database: "",
-      entities: [ ClParticipants,ClPartyInfo,ClSegments,ClCalls,CallcentQueuecalls],
-      synchronize: true,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('postgres.host'),
+        port: configService.get('postgres.port'),
+        username: configService.get('postgres.username'),
+        password: configService.get('postgres.password'),
+        database: configService.get('postgres.databases'),
+        entities: [__dirname + '/entities/*{.ts,.js}'],
+        synchronize: true,
+      }),
+      inject: [ConfigService],
     }),
     TypeOrmModule.forFeature([ClParticipants,ClPartyInfo,ClSegments,ClCalls,CallcentQueuecalls]),
   ],
@@ -26,3 +30,4 @@ import { CallcentQueuecalls } from "./entities/CallcentQueuecalls";
   exports:[DatabaseService]
 })
 export class DatabaseModule {}
+
