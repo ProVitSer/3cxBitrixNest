@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { forwardRef, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { HttpModule } from "@nestjs/axios";
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from "../logger/logger.module";
@@ -12,7 +12,7 @@ import { BitrixAuthMiddleware } from './api.auth.middleware';
   imports: [
     ConfigModule,
     LoggerModule,
-    AmiModule,
+    forwardRef(() => AmiModule),
     LowdbModule,
     HttpModule.registerAsync({
         imports: [ConfigModule],
