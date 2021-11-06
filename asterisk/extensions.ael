@@ -1,0 +1,103 @@
+globals {
+        CONSOLE-AEL="Console/dsp";              // Console interface for demo
+        DIR_RECORDS=/var/www/html/monitor/;
+        RECORDING=2;
+};
+
+//Маршрутизация в сторону 3cx trunk
+context operator-in {
+    _414232 => {
+         &recording();
+        Set(TRUNK=${EXTEN});
+        NoOp({ "unicueid": "${UNIQUEID}" , "incomingNumber" : "${CALLERID(num)}", "callId" : "${EXTEN}" });
+        Set(CHANNEL(hangup_handler_push)=incoming-hangup-handler,s,1);
+        SIPAddHeader(Remote-Party-ID: "${CALLERID(num)}" <sip:${CALLERID(num)}@EXTERNAL_OR_LOCAL_IP>;party=calling;privacy=off;screen=no);
+        Dial(SIP/414232,360,tT);
+    }
+}
+
+//Исходящая маршрутизация для каждого транка
+context outgoing {
+    _xxxxxxxxxxx => {
+        &recording();
+        Set(CHANNEL(hangup_handler_push)=outbound-hangup-handler,${EXTEN},1);
+        Dial(SIP/outgoing-trunk/${EXTEN},180,tT);
+    }
+}
+
+
+//Маршрутизация в сторону 3cx Bridge на внутренний номер
+context to-3cx {
+     _x. => {
+        NoOp(${EXTEN});
+        Set(CALLERID(num)=${CUT(EXTEN,:,2)});
+        Set(LOCALEXTEN=${CUT(EXTEN,:,1)});
+        SIPAddHeader(Remote-Party-ID: "${CALLERID(num)}" <sip:${CALLERID(num)}@EXTERNAL_OR_LOCAL_IP>;party=calling;privacy=off;screen=no);
+        NoOp(${CALLERID(num)});
+        NoOp(${LOCALEXTEN});
+        Dial(SIP/3CX/${LOCALEXTEN},360,tT);
+    }
+}
+
+//Исходящая маршрутизация при вызове из CRM
+context RouteToLocalWebHookCall {
+     _x. => {
+        &recording();
+        NoOp(${var1});
+        Set(CALLERID(num)=${var1});
+        Set(CHANNEL(hangup_handler_push)=outbound-call-hangup-handler,${EXTEN},1);
+        SIPAddHeader(Remote-Party-ID: "${CALLERID(num)}" <sip:${CALLERID(num)}@EXTERNAL_OR_LOCAL_IP>;party=calling;privacy=off;screen=no);
+        NoOp(${EXTEN});
+        Set(EXTEN=${EXTEN:1});
+
+        //Исходящая маршрутизаци для вызовов из CRM по шаблону внутренних номеров на нужный транк
+        switch (${var2}) {
+            pattern 32X:
+                Dial(SIP/outbound-trunk1/${EXTEN},360,tT);
+            break;
+            pattern 33X:
+                 Dial(SIP/outbound-trunk2/${EXTEN},360,tT);
+            break;
+            default:
+            break;
+            }
+        }
+}
+
+//Событие исходящего вызова
+context outbound-hangup-handler {
+    _X. => {
+        NoOp({ "exten": "${EXTEN}", "unicueid": "${UNIQUEID}" , "extensionNumber" : "${CALLERID(name)}" , "billsec" : "${CDR(billsec)}", "disposition" : "${CDR(disposition)}", "recording": "${fname}.wav", "start" : "${CDR(start)}", "end" : "${CDR(end)}" });
+    }
+}
+
+
+//Собыите входящего вызова
+context incoming-hangup-handler {
+    _s => {
+        NoOp({"trunkNumber": "${TRUNK}","unicueid": "${UNIQUEID}" , "incomingNumber" : "${CALLERID(num)}", "billsec" : "${CDR(billsec)}" ,"disposition" : "${CDR(disposition)}" , "recording": "${fname}.wav", "start" : "${CDR(start)}", "end" : "${CDR(end)}"});
+    }
+}
+
+
+//Событие исходящего вызова из CRM
+context outbound-call-hangup-handler {
+    _X. => {
+        NoOp({ "exten": "${EXTEN}", "unicueid": "${UNIQUEID}" , "extensionNumber" : "${var2}" , "bitrixICallid" : "${var3}", "billsec" : "${CDR(billsec)}", "disposition" : "${CDR(disposition)}", "recording": "${fname}.wav", "start" : "${CDR(start)}", "end" : "${CDR(end)}" });
+    }
+}
+
+
+
+//Запись разговоров
+macro recording() {
+    if ("${RECORDING}" = "1") {
+        Set(fname=${UNIQUEID}-${STRFTIME(${EPOCH},,%Y-%m-%d-%H_%M)});
+        Set(monopt=nice -n 19 /usr/bin/lame -b 32  --silent "${DIR_RECORDS}${fname}.wav"  "${DIR_RECORDS}${fname}.mp3" && rm -f "${DIR_RECORDS}${fname}.wav" && chmod o+r "${DIR_RECORDS}${fname}.mp3");
+        MixMonitor(${DIR_RECORDS}${fname}.wav,b,${monopt});
+   } else if ("${RECORDING}" = "2") {
+        Set(fname=${UNIQUEID}-${STRFTIME(${EPOCH},,%Y-%m-%d-%H_%M)});
+        MixMonitor(${DIR_RECORDS}${fname}.wav,b);
+   }
+   return;
+};
