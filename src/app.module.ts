@@ -13,11 +13,6 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ApiModule } from './api/api.module';
 import { SyncDataModule } from './sync-data/sync-data.module';
 import { BitrixModule } from './bitrix/bitrix.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ClCalls } from './database/entities/ClCalls';
-import { ClParticipants } from './database/entities/ClParticipants';
-import { ClPartyInfo } from './database/entities/ClPartyInfo';
-import { ClSegments } from './database/entities/ClSegments';
 
 
 @Module({
