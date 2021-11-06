@@ -11,7 +11,7 @@ export interface Users {
   id: string;
 }
 
-export enum CallProcessing {
+export const enum CallProcessing {
   queue = "queue",
   group = "group",
 }
