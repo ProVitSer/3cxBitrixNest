@@ -1,3 +1,4 @@
+import { PlainObject } from "@app/ami/ami.service";
 import { DispositionStatus } from "@app/ami/types/interfaces";
 
 export interface OnExternalCallStart {
@@ -116,12 +117,89 @@ export interface BitrixTasksFields {
   };
 }
 
+export interface BitrixFinishCallFields {
+  CALL_ID: number;
+  ID: number;
+  CALL_TYPE: string;
+  CALL_VOTE: string;
+  COMMENT: string;
+  PORTAL_USER_ID: number;
+  PORTAL_NUMBER: string;
+  PHONE_NUMBER: string;
+  CALL_DURATION: string;
+  CALL_START_DATE: string;
+  COST: string;
+  COST_CURRENCY: string;
+  CALL_FAILED_CODE: string;
+  CALL_FAILED_REASON: string;
+  CRM_ACTIVITY_ID: number;
+  CRM_ENTITY_ID: number;
+  CRM_ENTITY_TYPE: string;
+  REST_APP_ID: number;
+  REST_APP_NAME: string;
+  REDIAL_ATTEMPT: string;
+  SESSION_ID: number;
+  TRANSCRIPT_ID: number;
+  TRANSCRIPT_PENDING: string;
+  RECORD_FILE_ID: number;
+}
+
+export interface BitrixActivityFields {
+  fields: {
+    ASSOCIATED_ENTITY_ID?: number;
+    AUTHOR_ID?: number;
+    AUTOCOMPLETE_RULE?: number;
+    BINDINGS?: string;
+    COMMUNICATIONS?: Array<PlainObject>;
+    COMPLETED?: string;
+    CREATED?: string;
+    DEADLINE?: string;
+    DESCRIPTION?: string;
+    DESCRIPTION_TYPE?: string;
+    DIRECTION?: string;
+    EDITOR_ID?: number;
+    END_TIME?: string;
+    FILES?: string;
+    ID?: number;
+    LAST_UPDATE?: string;
+    LOCATION?: string;
+    NOTIFY_TYPE?: string;
+    NOTIFY_VALUE?: number;
+    ORIGINATOR_ID?: number;
+    ORIGIN_ID?: string;
+    ORIGIN_VERSION?: string;
+    OWNER_ID?: number;
+    OWNER_TYPE_ID?: number;
+    PRIORITY?: string;
+    PROVIDER_DATA?: string;
+    PROVIDER_GROUP_ID?: number;
+    PROVIDER_ID?: string;
+    PROVIDER_TYPE_ID?: number;
+    PROVIDER_PARAMS?: string;
+    RESPONSIBLE_ID?: number;
+    RESULT_CURRENCY_ID?: number;
+    RESULT_MARK?: number;
+    RESULT_SOURCE_ID?: number;
+    RESULT_STATUS?: number;
+    RESULT_STREAM?: number;
+    RESULT_SUM?: string;
+    RESULT_VALUE?: string;
+    SETTINGS?: string;
+    START_TIME?: string;
+    STATUS?: string;
+    SUBJECT?: string;
+    TYPE_ID?: string;
+    TYPE?: string;
+    WEBDAV_ELEMENTS?: string;
+  };
+}
+
 export interface GetActivity {
   ID: string;
   fields?: {};
 }
 
-export enum BitrixMetod {
+export const enum BitrixMetod {
   ExternalCallRegister = "telephony.externalcall.register.json",
   ExternalCallFinish = "telephony.externalcall.finish",
   ExternalCallSearch = "telephony.externalCall.searchCrmEntities",
@@ -137,39 +215,39 @@ export enum BitrixMetod {
   CrmActivityAdd = "crm.activity.add",
 }
 
-export enum ActiveUser {
+export const enum ActiveUser {
   active = "true",
   inactive = "false",
 }
 
-export enum BitrixCallType {
+export const enum BitrixCallType {
   incoming = 2,
   outgoing = 1,
   incomingRedirect = 3,
   callback = 4,
 }
 
-export enum CreateTaskType {
+export const enum CreateTaskType {
   YES = "true",
   NO = "false",
 }
 
-export enum CreateIncomingLead {
+export const enum CreateIncomingLead {
   YES = 0,
   NO = 1,
 }
 
-export enum CreateOutgoingLead {
+export const enum CreateOutgoingLead {
   YES = 0,
   NO = 1,
 }
 
-export enum Show {
+export const enum Show {
   YES = 0,
   NO = 1,
 }
 
-export enum BitrixCallStatusType {
+export const enum BitrixCallStatusType {
   SuccessfulCall = "200",
   MissedCall = "304",
   Rejected = "603",
